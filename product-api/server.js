@@ -1,49 +1,42 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db.js');
-const productRoutes = require('./routes/productRoutes');
-
-// Load environment config
+const connectDB = require('./config/db');
+const AppError = require('./utils/appError');
 dotenv.config();
-
-// Connect to MongoDB Database
-connectDB();
-
-const app = express();
-
-// Body Parser Middleware
-app.use(express.json());
-
-// Mount Routing Files
-app.use('/api/products', productRoutes);
-
+// Routes
+const productRoutes = require('./routes/productRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const app = express();
+
+connectDB();
+app.use(express.json());
+
+// Routes
+app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 
-const PORT = process.env.PORT ||5000;
-
-// وظيفته التعامل مع أي مسار غير موجود في السيرفر (404)
-app.all('*', (req, res, next) => {
-  const AppError = require('./utils/appError');
-  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+// 404 Handler
+app.use((req, res, next) => {
+    next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
 
-// المستقبل المركزي للأخطاء (Central Error Handler Middleware)
+// Global Error Handler
 app.use((err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
+    err.statusCode = err.statusCode || 500;
+    err.status = err.status || 'error';
 
-  res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-      stack: err.stack // يعرض مكان الخطأ بالتفصيل أثناء التطوير
-  });
+    res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
 });
 
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running in environment mode on port: ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
