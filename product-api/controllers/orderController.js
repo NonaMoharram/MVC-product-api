@@ -1,36 +1,47 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
-const catchAsync = require('../utils/catchAsync');
+const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/appError');
 
-// 1. منطق إتمام الشراء وإنشاء طلب (7.2 Checkout Logic)
-exports.checkout = catchAsync(async (req, res, next) => {
-    // جلب العربة الحالية مع بيانات المنتجات بالكامل
+exports.checkout = asyncHandler(async (req, res, next) => {
     const cart = await Cart.findOne().populate('items.product');
-    
+
     if (!cart || cart.items.length === 0) {
         return next(new AppError('Your cart is empty. Cannot checkout.', 400));
     }
 
-    // تجهيز مصفوفة عناصر الطلب والتحقق من المخزون والكميات المتوفرة
     const orderItems = [];
+
     for (const item of cart.items) {
         if (!item.product) {
             return next(new AppError('One of the products in your cart no longer exists.', 404));
         }
-        
-        // هنا يمكنكِ إضافة منطق التحقق من المخزون (Stock Verification) إذا كان مدعوماً في موديل المنتج الخاص بكِ
+
+        if (item.product.stock < item.quantity) {
+            return next(new AppError(`Not enough stock for product: ${item.product.name}.`, 400));
+        }
         orderItems.push({
             product: item.product._id,
+            name: item.product.name,   
+            price: item.product.price, 
             quantity: item.quantity
         });
     }
+
+    for (const item of cart.items) {
+        item.product.stock -= item.quantity;
+        await item.product.save();
+    }
+
+    // قراءة عنوان الشحن باسم متغير مستقل لتفادي أي خطأ إملائي أو تداخل في التهيئة
+    const inputShippingAddress = req?.body?.shippingAddress || 'Cairo, Egypt';
 
     // إنشاء الطلب الجديد في قاعدة البيانات
     const newOrder = await Order.create({
         items: orderItems,
         totalPrice: cart.totalPrice,
+        shippingAddress: inputShippingAddress,
         status: 'Pending'
     });
 
@@ -44,9 +55,7 @@ exports.checkout = catchAsync(async (req, res, next) => {
         data: { order: newOrder }
     });
 });
-
-// 2. جلب جميع الطلبات وعرضها (7.3 Order Read Endpoints)
-exports.getAllOrders = catchAsync(async (req, res, next) => {
+exports.getAllOrders = asyncHandler(async (req, res, next) => {
     const orders = await Order.find().populate('items.product');
 
     res.status(200).json({
@@ -56,8 +65,8 @@ exports.getAllOrders = catchAsync(async (req, res, next) => {
     });
 });
 
-// 3. جلب طلب واحد محدد بالـ ID
-exports.getOrder = catchAsync(async (req, res, next) => {
+// // 3. جلب طلب واحد محدد بالـ ID // //
+exports.getOrder = asyncHandler(async (req, res, next) => {
     const order = await Order.findById(req.params.id).populate('items.product');
 
     if (!order) {
@@ -70,11 +79,9 @@ exports.getOrder = catchAsync(async (req, res, next) => {
     });
 });
 
-// 4. تحديث حالة الطلب (7.4 Update Order Status)
-exports.updateOrderStatus = catchAsync(async (req, res, next) => {
+exports.updateOrderStatus = asyncHandler(async (req, res, next) => {
     const { status } = req.body;
 
-    // التحقق من أن الحالة المرسلة تتبع الخيارات المتاحة فقط
     const allowedStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
     if (!allowedStatuses.includes(status)) {
         return next(new AppError('Invalid order status', 400));

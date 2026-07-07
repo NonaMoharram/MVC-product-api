@@ -1,9 +1,9 @@
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
-const catchAsync = require('../utils/catchAsync');
+const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/appError');
 
-// دالة مساعدة لحساب السعر الإجمالي للعربة تلقائياً
+// // دالة مساعدة لحساب السعر الإجمالي للعربة تلقائياً // //
 const calculateTotalPrice = async (cart) => {
     let total = 0;
     for (const item of cart.items) {
@@ -16,14 +16,20 @@ const calculateTotalPrice = async (cart) => {
     await cart.save();
 };
 
-// 1. إضافة منتج إلى عربة التسوق (6.2 Add Item to Cart)
-exports.addToCart = catchAsync(async (req, res, next) => {
+// // 1. إضافة منتج إلى عربة التسوق (6.2 Add Item to Cart) // //
+exports.addToCart = asyncHandler(async (req, res, next) => {
     const { productId, quantity } = req.body;
+    const requestedQuantity = quantity || 1;
 
     // التأكد من وجود المنتج أولاً
     const product = await Product.findById(productId);
     if (!product) {
         return next(new AppError('No product found with that ID', 404));
+    }
+
+    // التحقق من المخزون (Validates Stock) عند الإضافة لأول مرة
+    if (product.stock < requestedQuantity) {
+        return next(new AppError(`Sorry, only ${product.stock} items left in stock`, 400));
     }
 
     // جلب العربة الحالية (لتبسيط المنهج سنفترض وجود عربة واحدة ثابتة)
@@ -36,9 +42,19 @@ exports.addToCart = catchAsync(async (req, res, next) => {
     const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
 
     if (itemIndex > -1) {
-        cart.items[itemIndex].quantity += quantity || 1;
+        // التحقق من المخزون الإجمالي بعد زيادة الكمية داخل العربة
+        const newQuantity = cart.items[itemIndex].quantity + requestedQuantity;
+        if (product.stock < newQuantity) {
+            return next(new AppError(`Cannot add more. Max available stock is ${product.stock}`, 400));
+        }
+        cart.items[itemIndex].quantity = newQuantity;
     } else {
-        cart.items.push({ product: productId, quantity: quantity || 1 });
+        // إضافة المنتج مع السعر والكمية لتطابق الـ Schema الجديدة
+        cart.items.push({ 
+            product: productId, 
+            quantity: requestedQuantity, 
+            price: product.price 
+        });
     }
 
     // حساب السعر الإجمالي الجديد وحفظ العربة
@@ -46,12 +62,12 @@ exports.addToCart = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
-        data: { cart }
+        data: cart
     });
 });
 
-// 2. تحديث وحذف عناصر من العربة (6.3 Update & Remove Cart Items)
-exports.updateCartItem = catchAsync(async (req, res, next) => {
+// // 2. تحديث وحذف عناصر من العربة (6.3 Update & Remove Cart Items) // //
+exports.updateCartItem = asyncHandler(async (req, res, next) => {
     const { productId, quantity } = req.body;
 
     const cart = await Cart.findOne();
@@ -68,6 +84,11 @@ exports.updateCartItem = catchAsync(async (req, res, next) => {
     if (quantity <= 0) {
         cart.items.splice(itemIndex, 1);
     } else {
+        // التأكد من المخزن قبل تعديل الكمية الجديدة مباشرة
+        const product = await Product.findById(productId);
+        if (product && product.stock < quantity) {
+            return next(new AppError(`Cannot update quantity. Only ${product.stock} items left in stock`, 400));
+        }
         cart.items[itemIndex].quantity = quantity;
     }
 
@@ -75,14 +96,14 @@ exports.updateCartItem = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
-        data: { cart }
+        data: cart
     });
 });
 
-// 3. عرض ومسح محتويات العربة (6.4 View & Clear Cart)
-exports.getCart = catchAsync(async (req, res, next) => {
+// // 3. عرض ومسح محتويات العربة (6.4 View & Clear Cart) // //
+exports.getCart = asyncHandler(async (req, res, next) => {
     const cart = await Cart.findOne().populate('items.product');
-    
+
     if (!cart) {
         return res.status(200).json({
             status: 'success',
@@ -96,7 +117,7 @@ exports.getCart = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.clearCart = catchAsync(async (req, res, next) => {
+exports.clearCart = asyncHandler(async (req, res, next) => {
     const cart = await Cart.findOne();
     if (cart) {
         cart.items = [];
@@ -109,3 +130,4 @@ exports.clearCart = catchAsync(async (req, res, next) => {
         data: null
     });
 });
+

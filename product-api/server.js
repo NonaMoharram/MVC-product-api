@@ -1,17 +1,24 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db');
+const connectDB = require('./db/db');
 const AppError = require('./utils/appError');
+const mongoSanitize = require('express-mongo-sanitize');
 dotenv.config();
-// Routes
+
 const productRoutes = require('./routes/productRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const errorHandler = require('./MiddleWare/errorHandler');
 const app = express();
 
-connectDB();
+
 app.use(express.json());
+app.use((req, res, next) => {
+    if (req.body) mongoSanitize.sanitize(req.body, { replaceWith: '_' });
+    if (req.params) mongoSanitize.sanitize(req.params, { replaceWith: '_' });
+    next();
+});
 
 // Routes
 app.use('/api/products', productRoutes);
@@ -24,18 +31,8 @@ app.use((req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
 
-// Global Error Handler
-app.use((err, req, res, next) => {
-    err.statusCode = err.statusCode || 500;
-    err.status = err.status || 'error';
-
-    res.status(err.statusCode).json({
-        status: err.status,
-        message: err.message,
-        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-    });
-});
-
+app.use(errorHandler);
+connectDB();
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

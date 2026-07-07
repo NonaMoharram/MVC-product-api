@@ -10,6 +10,7 @@ router.route('/')
 
 // مسار تعديل وحذف تصنيف معين عن طريق الـ ID
 router.route('/:id')
+    .get(categoryController.getCategory)
     .put(categoryController.updateCategory)
     .patch(categoryController.updateCategory)
     .delete(categoryController.deleteCategory);

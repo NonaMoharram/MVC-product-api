@@ -9,6 +9,11 @@ router.route('/')
     .delete(cartController.clearCart);
 
 router.route('/update')
+    .patch(cartController.updateCartItem)
     .put(cartController.updateCartItem);
 
 module.exports = router;
+
+
+
+
