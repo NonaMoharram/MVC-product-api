@@ -1,4 +1,4 @@
-# 🛒 E-Commerce Shop API (Digital Egypt Cubs - Task 10)
+# 🛒 E-Commerce Shop API 
 
 A complete Node.js & Express RESTful API for an E-Commerce system developed with MVC Architecture and MongoDB/Mongoose.
 
