@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "9f1e8653-d50d-4fe2-93b8-80072c981022",
-    "name": "My Shop API",
+    "name": "E-Commerce API Dev",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "55895267",
     "_collection_link": "https://go.postman.co/collection/55895267-9f1e8653-d50d-4fe2-93b8-80072c981022?source=collection_link"
@@ -16,9 +16,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{URL}}/api/categories",
+              "raw": "{{baseUrl}}/api/categories",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -35,7 +35,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Clothes\"\r\n}\r\n",
+              "raw": "{\r\n    \"name\": \"bag\",\r\n    \"description\" :\"All Kinds of bags \",\r\n    \"slug\":\"bag\"\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -43,9 +43,9 @@
               }
             },
             "url": {
-              "raw": "{{URL}}/api/categories",
+              "raw": "{{baseUrl}}/api/categories",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -62,7 +62,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Fashion\"\r\n}\r\n",
+              "raw": "{\r\n    \"name\": \"classic\"\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -70,14 +70,14 @@
               }
             },
             "url": {
-              "raw": "{{URL}}/api/categories/6a49d8eff86e223eb1d7bfe6",
+              "raw": "{{baseUrl}}/api/categories/6a4c1d89dfc97113c5d0aa92",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "categories",
-                "6a49d8eff86e223eb1d7bfe6"
+                "6a4c1d89dfc97113c5d0aa92"
               ]
             }
           },
@@ -88,15 +88,45 @@
           "request": {
             "method": "DELETE",
             "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": "{{URL}}/api/categories/6a49d8eff86e223eb1d7bfe6",
+              "raw": "{{baseUrl}}/api/categories/6a4c1d89dfc97113c5d0aa92",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "categories",
-                "6a49d8eff86e223eb1d7bfe6"
+                "6a4c1d89dfc97113c5d0aa92"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/categories/{{categoryId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "categories",
+                "{{categoryId}}"
               ]
             }
           },
@@ -113,9 +143,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{URL}}/api/products",
+              "raw": "{{baseUrl}}/api/products",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -131,14 +161,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{URL}}/api/products/6a497c95fee6549f1987ae83",
+              "raw": "{{baseUrl}}/api/products/{{productId}}",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "products",
-                "6a497c95fee6549f1987ae83"
+                "{{productId}}"
               ]
             }
           },
@@ -151,7 +181,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Laptop Pro\",\r\n    \"price\": 1299,\r\n    \"description\": \"Powerful laptop for developers and creators.\",\r\n    \"category\": \"6a497b5efee6549f1987ae79\"\r\n}\r\n",
+              "raw": "{\r\n    \"name\": \"Laptop Pro\",\r\n    \"price\": 1299,\r\n    \"description\": \"Powerful laptop for developers and creators.\",\r\n    \"category\": \"6a4c0e2a1d4fde828d236f27\"\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -159,9 +189,9 @@
               }
             },
             "url": {
-              "raw": "{{URL}}/api/products",
+              "raw": "{{baseUrl}}/api/products",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -178,7 +208,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"price\": 1199\r\n}\r\n",
+              "raw": "{\r\n    \"price\": 2099,\r\n    \"stock\":60\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -186,14 +216,14 @@
               }
             },
             "url": {
-              "raw": "{{URL}}/api/products/6a49d728f86e223eb1d7bfe5",
+              "raw": "{{baseUrl}}/api/products/6a4c0e2a1d4fde828d236f28",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "products",
-                "6a49d728f86e223eb1d7bfe5"
+                "6a4c0e2a1d4fde828d236f28"
               ]
             }
           },
@@ -205,14 +235,14 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{URL}}/api/products/6a49d728f86e223eb1d7bfe5",
+              "raw": "{{baseUrl}}/api/products/6a4c0e2a1d4fde828d236f28",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "products",
-                "6a49d728f86e223eb1d7bfe5"
+                "6a4c0e2a1d4fde828d236f28"
               ]
             }
           },
@@ -229,9 +259,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{URL}}/api/cart",
+              "raw": "{{baseUrl}}/api/cart",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -248,7 +278,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"productId\": \"6a497c95fee6549f1987ae83\",\r\n    \"quantity\": 2\r\n}\r\n",
+              "raw": "{\r\n    \"productId\": \"6a4c3dcdf8f12b38dc92762b\",\r\n    \"quantity\": 2\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -256,9 +286,9 @@
               }
             },
             "url": {
-              "raw": "{{URL}}/api/cart",
+              "raw": "{{baseUrl}}/api/cart",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -275,7 +305,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"productId\": \"6a497c95fee6549f1987ae83\",\r\n    \"quantity\": 5\r\n}\r\n",
+              "raw": "{\r\n    \"productId\": \"6a4c3dcdf8f12b38dc92762b\",\r\n    \"quantity\": 5\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -283,9 +313,9 @@
               }
             },
             "url": {
-              "raw": "{{URL}}/api/cart/update",
+              "raw": "{{baseUrl}}/api/cart/update",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -302,9 +332,36 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{URL}}/api/cart",
+              "raw": "{{baseUrl}}/api/cart",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"productId\": \"6ba49daabf86e223eb1d7fe7\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart",
+              "host": [
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -325,9 +382,9 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{URL}}/api/orders",
+              "raw": "{{baseUrl}}/api/orders",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -343,9 +400,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{URL}}/api/orders",
+              "raw": "{{baseUrl}}/api/orders",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -370,14 +427,52 @@
               }
             },
             "url": {
-              "raw": "{{URL}}/api/orders/6a49dbfaf86e223eb1d7bfed",
+              "raw": "{{baseUrl}}/api/orders/6a4c3eb9f8f12b38dc92762e",
               "host": [
-                "{{URL}}"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "orders",
-                "6a49dbfaf86e223eb1d7bfed"
+                "6a4c3eb9f8f12b38dc92762e"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/6a4c3eb9f8f12b38dc92762e",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "6a4c3eb9f8f12b38dc92762e"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Order",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/6a4c3eb9f8f12b38dc92762e",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "6a4c3eb9f8f12b38dc92762e"
               ]
             }
           },
