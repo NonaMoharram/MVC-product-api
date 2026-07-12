@@ -9,7 +9,7 @@ router.route('/')
     .post(orderController.checkout);
 
 // مسار لجلب طلب محدد أو تحديث حالته باستخدام الـ ID
-router.route('/:id')
+router.route('/:id/status')
     .get(orderController.getOrder)
     .patch(orderController.updateOrderStatus);
 

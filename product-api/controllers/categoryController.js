@@ -1,7 +1,6 @@
-const Category = require('../models/category');
+const Category = require('../models/category.model');
 const asyncHandler = require('../utils/asyncHandler');
-const AppError = require('../utils/appError');
-
+const AppError = require('../utils/AppError');
 // 1. إنشاء تصنيف جديد (Create)
 exports.createCategory = asyncHandler(async (req, res, next) => {
     const newCategory = await Category.create(req.body);
@@ -11,7 +10,6 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
         data: { category: newCategory }
     });
 });
-
 // 2. جلب جميع التصنيفات (Read All)
 exports.getAllCategories = asyncHandler(async (req, res, next) => {
     const categories = await Category.find();
@@ -37,8 +35,6 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
         data: { category }
     });
 });
-
-
 // 3. تعديل تصنيف محدد (Update)
 exports.updateCategory = asyncHandler(async (req, res, next) => {
     const updatedCategory = await Category.findByIdAndUpdate(req.params.id, req.body, {
@@ -56,7 +52,6 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
         data: { category: updatedCategory }
     });
 });
-
 // 4. حذف تصنيف محدد (Delete)
 exports.deleteCategory = asyncHandler(async (req, res, next) => {
     const category = await Category.findByIdAndDelete(req.params.id);
@@ -65,8 +60,5 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
         return next(new AppError('No category found with that ID', 404));
     }
 
-    res.status(204).json({
-        status: 'success',
-        data: null
-    });
+    res.status(204).send();
 });
