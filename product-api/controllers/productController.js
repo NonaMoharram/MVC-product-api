@@ -97,9 +97,7 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
         return next(new AppError('No product found with that ID', 404));
     }
 
-    res.status(204).json({
-        status: 'success',
-        data: null
-    });
+    res.status(204).send();
+
 });
 
