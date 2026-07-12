@@ -1,7 +1,7 @@
-const Cart = require('../models/Cart');
-const Product = require('../models/Product');
+const Cart = require('../models/cart.model');
+const Product = require('../models/product.model');
 const asyncHandler = require('../utils/asyncHandler');
-const AppError = require('../utils/appError');
+const AppError = require('../utils/AppError');
 
 // // دالة مساعدة لحساب السعر الإجمالي للعربة تلقائياً // //
 const calculateTotalPrice = async (cart) => {
@@ -31,8 +31,7 @@ exports.addToCart = asyncHandler(async (req, res, next) => {
     if (product.stock < requestedQuantity) {
         return next(new AppError(`Sorry, only ${product.stock} items left in stock`, 400));
     }
-
-    // جلب العربة الحالية (لتبسيط المنهج سنفترض وجود عربة واحدة ثابتة)
+   
     let cart = await Cart.findOne();
     if (!cart) {
         cart = await Cart.create({ items: [] });
@@ -66,7 +65,6 @@ exports.addToCart = asyncHandler(async (req, res, next) => {
     });
 });
 
-// // 2. تحديث وحذف عناصر من العربة (6.3 Update & Remove Cart Items) // //
 exports.updateCartItem = asyncHandler(async (req, res, next) => {
     const { productId, quantity } = req.body;
 
@@ -100,7 +98,7 @@ exports.updateCartItem = asyncHandler(async (req, res, next) => {
     });
 });
 
-// // 3. عرض ومسح محتويات العربة (6.4 View & Clear Cart) // //
+// // 3. عرض ومسح محتويات العربة ( View & Clear Cart) // //
 exports.getCart = asyncHandler(async (req, res, next) => {
     const cart = await Cart.findOne().populate('items.product');
 
@@ -119,15 +117,22 @@ exports.getCart = asyncHandler(async (req, res, next) => {
 
 exports.clearCart = asyncHandler(async (req, res, next) => {
     const cart = await Cart.findOne();
+    
+    // إذا كانت السلة موجودة، نقوم بتفريغها وحفظها
     if (cart) {
         cart.items = [];
         cart.totalPrice = 0;
         await cart.save();
     }
 
-    res.status(204).json({
+    //  إرجاع سلة فارغة بكود 200 وليس خطأ 404
+    res.status(200).json({
         status: 'success',
-        data: null
+        data: {
+            items: [],
+            totalPrice: 0
+        }
     });
 });
+
 

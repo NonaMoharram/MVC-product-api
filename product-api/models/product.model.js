@@ -10,15 +10,19 @@ const productSchema = new mongoose.Schema({
         required: [true, 'Please add a product description'],
         trim: true
     },
+    
     price: {
         type: Number,
-        required: [true, 'Please add a product price']
+        required: [true, 'Please add a product price'],
+        min: [0, 'Price cannot be less than 0']
     },
     stock: {
         type: Number,
         required: [true, 'Please add product stock quantity'],
+        min: [0, 'Stock cannot be less than 0'],
         default: 0
     },
+    
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
@@ -33,6 +37,5 @@ const productSchema = new mongoose.Schema({
         default: true
     }
 }, { timestamps: true });
-
 module.exports = mongoose.model('Product', productSchema);
 

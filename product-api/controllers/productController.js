@@ -1,14 +1,14 @@
-const Product = require('../models/Product');
-const Category = require('../models/category'); // استدعاء موديل التصنيفات للتحقق منه
+const Product = require('../models/product.model');
+const Category = require('../models/category.model'); // استدعاء موديل التصنيفات للتحقق منه
 const asyncHandler = require('../utils/asyncHandler');
-const AppError = require('../utils/appError');
+const AppError = require('../utils/AppError');
 
 // 1. إنشاء منتج جديد مع التحقق من الـ Category
 exports.createProduct = asyncHandler(async (req, res, next) => {
     // التحقق من وجود التصنيف في قاعدة البيانات أولاً
     const categoryExists = await Category.findById(req.body.category);
     if (!categoryExists) {
-        return next(new AppError('Category not found. Please provide a valid category ID', 404));
+        return next(new AppError('Category not found. Please provide a valid category ', 404));
     }
 
     const newProduct = await Product.create(req.body);
@@ -18,36 +18,38 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
     });
 });
 
-// 2. جلب كل المنتجات مع الفلترة المتقدمة والبحث
 exports.getProducts = asyncHandler(async (req, res, next) => {
-    // عمل نسخة من الـ query لتصفيتها
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields', 'search', 'minPrice', 'maxPrice'];
-    excludedFields.forEach(el => delete queryObj[el]);
 
-    // الفلترة الأساسية (مثل التصنيف والـ inStock)
-    let query = Product.find(queryObj);
+ const queryObj = { ...req.query };
+ const excludedFields = ['page', 'sort', 'limit', 'fields', 'search'];
+ excludedFields.forEach(el => delete queryObj[el]);
 
-    // فلترة السعر: minPrice & maxPrice
-    if (req.query.minPrice || req.query.maxPrice) {
-        const priceQuery = {};
-        if (req.query.minPrice) priceQuery.$gte = Number(req.query.minPrice);
-        if (req.query.maxPrice) priceQuery.$lte = Number(req.query.maxPrice);
-        query = query.find({ price: priceQuery });
-    }
+ if (req.query.minPrice || req.query.maxPrice) {
+     queryObj.price = {};
+     if (req.query.minPrice) queryObj.price.$gte = Number(req.query.minPrice);
+     if (req.query.maxPrice) queryObj.price.$lte = Number(req.query.maxPrice);
+     
+     delete queryObj.minPrice;
+     delete queryObj.maxPrice;
+ }
 
-    // البحث النصي في الاسم والوصف (Search Filter)
-    if (req.query.search) {
-        const searchRegex = new RegExp(req.query.search, 'i');
-        query = query.find({
-            $or: [{ name: searchRegex }, { description: searchRegex }]
-        });
-    }
 
-    // عمل الـ populate للحقول المطلوبة فقط في التكليف (name & description)
-    query = query.populate('category', 'name description');
+ if (req.query.instock) {
+     queryObj.instock = req.query.instock === 'true';
+ }
 
-    const products = await query;
+ if (req.query.search) {
+     const searchRegex = new RegExp(req.query.search, 'i');
+     queryObj.$or = [
+         { name: searchRegex },
+         { description: searchRegex }
+     ];
+ }
+ let query = Product.find(queryObj);
+    
+query = query.populate('category', 'name description');
+
+ const products = await query;
 
     res.status(200).json({
         status: 'success',
